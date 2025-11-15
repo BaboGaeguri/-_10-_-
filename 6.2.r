@@ -10,7 +10,7 @@ library(lmtest) # lmtest 라이브러리 설치
 
 # 파일 불러오기
 df <- read_excel("C:/Users/김상희/OneDrive/바탕 화면/수업자료/빅융/2. 응용회귀분석/교수님 제공 코드/회귀분석_데이터/table6.1_galapagos.xlsx")
-
+df$Endemics_ratio <- df$Endemics / df$Species # 고유종 비율 구하기
 # =============================
 # 1. 기초 데이터 분석
 # =============================
@@ -22,11 +22,10 @@ colSums(is.na(df)) #결측치 확인
 
 # 반응변수(Species) 박스플롯
 par(mfrow = c(1, 1))
-boxplot(df$Species, main="Species 분포 (반응변수)", xlab="Species", col="lightblue")
+boxplot(df$Endemics_ratio, main="Endemics_ratio 분포 (반응변수)", xlab="Species", col="lightblue")
 
 # 설명변수 박스플롯
 par(mfrow = c(2, 3))
-boxplot(df$Endemics, main="Endemics 분포", xlab="Endemics", col="lightgreen")
 boxplot(df$Area, main="Area 분포", xlab="Area", col="lightpink")
 boxplot(df$Elevation, main="Elevation 분포", xlab="Elevation", col="lightyellow")
 boxplot(df$Nearest, main="Nearest 분포", xlab="Nearest", col="lightcoral")
@@ -40,57 +39,54 @@ par(mfrow = c(1, 1))
 # Species를 반응변수로 하는 산점도 플롯
 par(mfrow = c(2, 3))
 
-plot(df$Area, df$Species,
-     main = "Area vs Species",
+# 1. Area
+plot(df$Area, df$Endemics_ratio,
+     main = "Area vs Endemics_ratio",
      xlab = "Area",
-     ylab = "Species",
+     ylab = "Endemics_ratio",
      pch = 19, col = "blue")
-abline(lm(Species ~ Area, data = df), col = "red", lwd = 2)
+abline(lm(Endemics_ratio ~ Area, data = df), col = "red", lwd = 2)
 
-plot(df$Elevation, df$Species,
-     main = "Elevation vs Species",
+# 2. Elevation
+plot(df$Elevation, df$Endemics_ratio,
+     main = "Elevation vs Endemics_ratio",
      xlab = "Elevation",
-     ylab = "Species",
+     ylab = "Endemics_ratio",
      pch = 19, col = "red")
-abline(lm(Species ~ Elevation, data = df), col = "red", lwd = 2)
+abline(lm(Endemics_ratio ~ Elevation, data = df), col = "red", lwd = 2)
 
-plot(df$Nearest, df$Species,
-     main = "Nearest vs Species",
+# 3. Nearest
+plot(df$Nearest, df$Endemics_ratio,
+     main = "Nearest vs Endemics_ratio",
      xlab = "Nearest",
-     ylab = "Species",
+     ylab = "Endemics_ratio",
      pch = 19, col = "green")
-abline(lm(Species ~ Nearest, data = df), col = "red", lwd = 2)
+abline(lm(Endemics_ratio ~ Nearest, data = df), col = "red", lwd = 2)
 
-plot(df$Scruz, df$Species,
-     main = "Scruz vs Species",
+# 4. Scruz
+plot(df$Scruz, df$Endemics_ratio,
+     main = "Scruz vs Endemics_ratio",
      xlab = "Scruz",
-     ylab = "Species",
+     ylab = "Endemics_ratio",
      pch = 19, col = "purple")
-abline(lm(Species ~ Scruz, data = df), col = "red", lwd = 2)
+abline(lm(Endemics_ratio ~ Scruz, data = df), col = "red", lwd = 2)
 
-plot(df$Adjacent, df$Species,
-     main = "Adjacent vs Species",
+# 5. Adjacent
+plot(df$Adjacent, df$Endemics_ratio,
+     main = "Adjacent vs Endemics_ratio",
      xlab = "Adjacent",
-     ylab = "Species",
+     ylab = "Endemics_ratio",
      pch = 19, col = "orange")
-abline(lm(Species ~ Adjacent, data = df), col = "red", lwd = 2)
-
-plot(df$Endemics, df$Species,
-     main = "Endemics vs Species",
-     xlab = "Endemics",
-     ylab = "Species",
-     pch = 19, col = "darkgreen")
-abline(lm(Species ~ Endemics, data = df), col = "red", lwd = 2)
+abline(lm(Endemics_ratio ~ Adjacent, data = df), col = "red", lwd = 2)
 
 par(mfrow = c(1, 1))
 
-# 상관계수 검정 (Species와 각 설명변수)
-cor.test(df$Species, df$Endemics) # Species vs Endemics
-cor.test(df$Species, df$Area) # Species vs Area
-cor.test(df$Species, df$Elevation) # Species vs Elevation
-cor.test(df$Species, df$Nearest) # Species vs Nearest
-cor.test(df$Species, df$Scruz) # Species vs Scruz
-cor.test(df$Species, df$Adjacent) # Species vs Adjacent
+# 상관계수 검정 (Endemics_ratio와 각 설명변수)
+cor.test(df$Endemics_ratio, df$Area) # Endemics_ratio vs Area
+cor.test(df$Endemics_ratio, df$Elevation) # Endemics_ratio vs Elevation
+cor.test(df$Endemics_ratio, df$Nearest) # Endemics_ratio vs Nearest
+cor.test(df$Endemics_ratio, df$Scruz) # Endemics_ratio vs Scruz
+cor.test(df$Endemics_ratio, df$Adjacent) # Endemics_ratio vs Adjacent
 
 # =============================
 # 3. 모델 적합

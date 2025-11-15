@@ -2,10 +2,89 @@ install.packages("readxl")
 install.packages("corrplot")
 install.packages("leaps")
 install.packages("MASS")
+install.packages("car")
 
 # 파일 불러오기
 library(readxl)
 df <- read_excel("C:/Users/김상희/OneDrive/바탕 화면/수업자료/빅융/2. 응용회귀분석/교수님 제공 코드/회귀분석_데이터/table6.1_galapagos.xlsx")
+df$Endemics_ratio <- df$Endemics / df$Species # 고유종 비율 구하기
+
+# =============================
+# 1. 기초 데이터 분석
+# =============================
+summary(df) #평균, 중앙값, 4분위 확인
+str(df) # 자료형 확인
+names(df) # 열이름 확인
+
+colSums(is.na(df)) #결측치 확인
+
+# 반응변수(Endemics_ratio) 박스플롯
+par(mfrow = c(1, 1))
+boxplot(df$Endemics_ratio, main="Endemics_ratio 분포 (반응변수)", xlab="Species", col="lightblue")
+
+# 설명변수 박스플롯
+par(mfrow = c(2, 3))
+boxplot(df$Area, main="Area 분포", xlab="Area", col="lightpink")
+boxplot(df$Elevation, main="Elevation 분포", xlab="Elevation", col="lightyellow")
+boxplot(df$Nearest, main="Nearest 분포", xlab="Nearest", col="lightcoral")
+boxplot(df$Scruz, main="Scruz 분포", xlab="Scruz", col="lavender")
+boxplot(df$Adjacent, main="Adjacent 분포", xlab="Adjacent", col="lightcyan")
+par(mfrow = c(1, 1))
+
+# =============================
+# 2. 선형성 파악
+# =============================
+# Species를 반응변수로 하는 산점도 플롯
+par(mfrow = c(2, 3))
+
+# 1. Area
+plot(df$Area, df$Endemics_ratio,
+     main = "Area vs Endemics_ratio",
+     xlab = "Area",
+     ylab = "Endemics_ratio",
+     pch = 19, col = "blue")
+abline(lm(Endemics_ratio ~ Area, data = df), col = "red", lwd = 2)
+
+# 2. Elevation
+plot(df$Elevation, df$Endemics_ratio,
+     main = "Elevation vs Endemics_ratio",
+     xlab = "Elevation",
+     ylab = "Endemics_ratio",
+     pch = 19, col = "red")
+abline(lm(Endemics_ratio ~ Elevation, data = df), col = "red", lwd = 2)
+
+# 3. Nearest
+plot(df$Nearest, df$Endemics_ratio,
+     main = "Nearest vs Endemics_ratio",
+     xlab = "Nearest",
+     ylab = "Endemics_ratio",
+     pch = 19, col = "green")
+abline(lm(Endemics_ratio ~ Nearest, data = df), col = "red", lwd = 2)
+
+# 4. Scruz
+plot(df$Scruz, df$Endemics_ratio,
+     main = "Scruz vs Endemics_ratio",
+     xlab = "Scruz",
+     ylab = "Endemics_ratio",
+     pch = 19, col = "purple")
+abline(lm(Endemics_ratio ~ Scruz, data = df), col = "red", lwd = 2)
+
+# 5. Adjacent
+plot(df$Adjacent, df$Endemics_ratio,
+     main = "Adjacent vs Endemics_ratio",
+     xlab = "Adjacent",
+     ylab = "Endemics_ratio",
+     pch = 19, col = "orange")
+abline(lm(Endemics_ratio ~ Adjacent, data = df), col = "red", lwd = 2)
+
+par(mfrow = c(1, 1))
+
+# 상관계수 검정 (Endemics_ratio와 각 설명변수)
+cor.test(df$Endemics_ratio, df$Area) # Endemics_ratio vs Area
+cor.test(df$Endemics_ratio, df$Elevation) # Endemics_ratio vs Elevation
+cor.test(df$Endemics_ratio, df$Nearest) # Endemics_ratio vs Nearest
+cor.test(df$Endemics_ratio, df$Scruz) # Endemics_ratio vs Scruz
+cor.test(df$Endemics_ratio, df$Adjacent) # Endemics_ratio vs Adjacent
 
 # (a) 고유종(Endemics)에 대한 종의 수(Species)에 대한 비율을 반응변수로 하여 다중회귀분석을 하시오.
 df$Endemics_ratio <- df$Endemics / df$Species # 고유종 비율 구하기
@@ -13,7 +92,7 @@ model1 <- lm(Endemics_ratio ~ Area + Elevation + Nearest + Scruz + Adjacent, dat
 summary(model1)
 
 # (b) 결측값이 존재하는 Elevation 변수를 제외하고 다중회귀분석을 하시오.
-colSums(is.na(df)) # ...?
+colSums(is.na(df))
 model2 <- lm(Endemics_ratio ~ Area + Nearest + Scruz + Adjacent, data = df)
 summary(model2)
 
@@ -33,7 +112,7 @@ for (var in colnames(X)) {
   cat("반응변수 =", var, "\n")
   print(summary(model_temp)$r.squared)
 }
-# 3) 가장 작은 고유값이 30보다 큰 경우
+# 3) 고유값을 이용해 계산한 조건수가 30보다 큰 경우
 X <- apply(X, 2, as.numeric)
 XtX <- crossprod(X)
 eigen_vals_XtX <- eigen(XtX)$values
@@ -41,6 +120,7 @@ eigen_vals_XtX <- eigen(XtX)$values
 condition_number <- sqrt(max(eigen_vals_XtX)) / sqrt(min(eigen_vals_XtX))
 condition_number
 # 4) VIF
+library(car)
 vif(model1)
 
 # (d) 단계별 변수선택법으로 변수선택을 하시오.
@@ -89,7 +169,7 @@ plot(sizes[remaining_idx], cp_vals[remaining_idx],
      xlab = "Number of predictors (p)",
      ylab = "Mallows Cp",
      main = "Models & Cp = p line (y = x)",
-     pch = 19, col = "gray60", xlim = c(0, max(sizes)), ylim = c(0, 20))
+     pch = 19, col = "gray60", xlim = c(0, max(sizes)), ylim = c(0, 10))
 abline(a = 0, b = 1, col = "red", lwd = 2, lty = 2)
 # best5 강조
 points(sizes[best5_idx], cp_vals[best5_idx],
@@ -123,7 +203,7 @@ for (var in colnames(X)) {
   cat("반응변수 =", var, "\n")
   print(summary(model_temp)$r.squared)
 }
-# 3) 가장 작은 고유값이 30보다 큰 경우
+# 3) 고유값을 이용해 계산한 조건수가 30보다 큰 경우
 X <- apply(X, 2, as.numeric)
 XtX <- crossprod(X)
 eigen_vals_XtX <- eigen(XtX)$values
@@ -179,7 +259,7 @@ plot(sizes[remaining_idx], cp_vals[remaining_idx],
      xlab = "Number of predictors (p)",
      ylab = "Mallows Cp",
      main = "Models & Cp = p line (y = x)",
-     pch = 19, col = "gray60", xlim = c(0, max(sizes)), ylim = c(0, 20))
+     pch = 19, col = "gray60", xlim = c(0, max(sizes)), ylim = c(0, 10))
 abline(a = 0, b = 1, col = "red", lwd = 2, lty = 2)
 # best5 강조
 points(sizes[best5_idx], cp_vals[best5_idx],
