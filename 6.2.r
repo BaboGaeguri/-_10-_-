@@ -93,8 +93,13 @@ cor.test(df$Endemics_ratio, df$Adjacent) # Endemics_ratio vs Adjacent
 # =============================
 # 다중회귀식 적합(t-test, F-test, 설명력)
 # 다중회귀모델 (Species를 모든 설명변수로 예측)
-model1 <- lm(Species ~ Endemics + Area + Elevation + Nearest + Scruz + Adjacent, data = df)
+df <- df[-7, ]
+
+model1 <- lm(Endemics_ratio ~ Area, data = df)
 summary(model1)
+
+# model1 <- lm(Endemics_ratio ~ Area + Elevation + Nearest + Scruz + Adjacent, data = df)
+# summary(model1)
 
 # =============================
 # 4. 모델 기본 가정 진단
