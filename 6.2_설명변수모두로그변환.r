@@ -85,6 +85,7 @@ plot(model1)
 ### 고급 기본 가정 진단 ###
 # a. 등분산성
 # 1) 모수 에러가 0인지 검정(등분산성 검정)
+library(car)
 ncvTest(model1) 
 # 2) absolute studentizde residual vs model1 그림(등분산성 가정 진단 시각화)
 # 직선의 기울기가 양수면 이분산성
@@ -97,6 +98,9 @@ qqPlot(rstudent(model1))
 
 ### 잔차 플롯 ###
 # a. 등분산성 확인(0을 중심으로 랜덤하게 분포하고 패턴이 없어야함.)
+y_hat_model1 <- fitted(model1)
+student_resid <- rstudent(model1)
+
 par(mfrow = c(1, 1)) # 예측값(ŷ)과 잔차(ε̂) 산점도
 plot(y_hat_model1, student_resid,
      pch = 19, col = "blue",
